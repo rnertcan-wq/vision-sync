@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'source/VISION-Android-1.5.0-source.zip'
-      - '.github/workflows/vision-android-apk.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,43 +24,58 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check source archive
+        id: source
         run: |
-          test -s source/VISION-Android-1.5.0-source.zip
-          unzip -t source/VISION-Android-1.5.0-source.zip
+          if [ -s source/VISION-Android-1.5.0-source.zip ]; then
+            unzip -t source/VISION-Android-1.5.0-source.zip
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Waiting for source/VISION-Android-1.5.0-source.zip to be uploaded."
+          fi
 
       - name: Extract Android source
+        if: steps.source.outputs.present == 'true'
         run: unzip -q source/VISION-Android-1.5.0-source.zip -d .
 
       - name: Set up Java 17
+        if: steps.source.outputs.present == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Android SDK
+        if: steps.source.outputs.present == 'true'
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK components
+        if: steps.source.outputs.present == 'true'
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle 8.11.1
+        if: steps.source.outputs.present == 'true'
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
 
       - name: Verify Android source and security
+        if: steps.source.outputs.present == 'true'
         run: python3 apps/android/tools/verify_project.py
 
       - name: Run unit tests and build APK
+        if: steps.source.outputs.present == 'true'
         run: gradle --no-daemon --stacktrace -p apps/android clean testDebugUnitTest assembleDebug
 
       - name: Prepare APK and checksum
+        if: steps.source.outputs.present == 'true'
         run: |
           mkdir -p dist/android
           cp apps/android/app/build/outputs/apk/debug/app-debug.apk dist/android/VISION-Android-1.5.0-debug.apk
           sha256sum dist/android/VISION-Android-1.5.0-debug.apk > dist/android/VISION-Android-1.5.0-debug.apk.sha256
 
       - name: Upload Android APK
+        if: steps.source.outputs.present == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: VISION-Android-1.5.0-debug-APK
