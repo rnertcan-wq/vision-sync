@@ -1,60 +1,50 @@
-# VISION 1.5.1 — Android APK
+# VISION — Rootless GSM Companion Architecture
 
-This repository builds the VISION Android application from the source archive uploaded to this repository.
+VISION is being designed as one assistant across Android and Windows, with one identity, shared memory, and an EVREN-backed intelligence layer. LIVE, DRIVE, AGENT, and PHONE are capabilities inside the same product.
 
-## Upload the source archive
+## Current repository status — 17 November 2026
 
-1. Download `VISION-Android-1.5.1-source.zip` from the ChatGPT conversation.
-2. Open the `source/` folder and choose **Add file → Upload files**.
-3. Upload the ZIP with this exact filename: `VISION-Android-1.5.1-source.zip`.
-4. Commit the upload to `main`.
+**This repository is currently a build scaffold, not a complete Android application.** The actual Android source tree is not present on the main branch, and the referenced 1.5.1 source ZIP has not been uploaded. The existing GitHub Actions runs fail at the source-archive existence check, before Android compilation starts. No installable APK has been produced by this repository.
 
-The archive must contain the `apps/android/` directory at its root. Uploading it to the expected path automatically starts **VISION Android APK** in GitHub Actions. You can also start the workflow manually from **Actions → VISION Android APK → Run workflow** after the archive has been uploaded.
+Earlier README text describing 1.5.1 features as integrated should not be treated as proof that those features exist in a buildable app. The implementation must be recovered or recreated, then compiled and tested before any release claim.
 
-## What is in 1.5.1
+## Approved phone architecture
 
-- Existing VISION Live Mode, Driving Mode, CameraX analysis, Turkish voice input, and EVREN speech/chat integration are retained.
-- **New continuous LIVE Voice Mode:** partial Turkish speech recognition, EVREN streamed LLM responses, sentence-by-sentence PCM TTS, VAD barge-in, and Android TTS fallback.
-- The live voice engine uses the Apache-2.0 FluxVoice Android runtime 1.0.0 with custom VISION providers. No Deepgram or Cartesia API key is required.
-- JARVIS, FRIDAY, EDITH, and ULTRON run as bounded specialist subagents with separate local workspaces. Device actions and native web fetch are disabled in this agent integration.
-- Live voice turns use the existing VISION repository, chat history, memory rules, agent privacy boundaries, and approval flow.
-- The API key is entered after installation and is never committed to this public repository.
+The Tecno Camon 20 Pro (CK7n) will remain **rootless**. No bootloader unlock, Magisk, privileged system app, or hidden telephony API will be used. The existing physical GSM SIM remains in the phone.
 
-### Live voice architecture note
+The architecture separates two cases:
 
-EVREN's documented API provides completed-file transcription and streamed speech output, but does not document a Realtime WebRTC/WebSocket microphone session. Therefore LIVE mode uses Android SpeechRecognizer for partial/final Turkish STT, EVREN for the streamed LLM response and PCM TTS, and FluxVoice/WebRTC VAD for interruption. It is a streaming conversational voice pipeline with barge-in, not a claim of a direct EVREN WebRTC session.
+1. **Native SIM companion:** Android Telecom APIs, with user-granted default-dialer role where required, manage call UI and supported call controls. VISION can identify callers, apply contact rules, prepare response suggestions, and launch normal SIM calls. An ordinary Android app cannot capture the cellular call's two-way audio, so it cannot autonomously speak to the other party inside an ordinary SIM call.
+2. **AI receptionist:** When supported by the carrier, conditional/unconditional call forwarding sends incoming calls from the existing GSM number to a SIP endpoint on the VDS. LiveKit and the VISION Call Agent can then hold a real two-way AI conversation. Outbound AI calls displaying the existing GSM number require an operator-authorized SIP/API provider that verifies that caller ID. No caller-ID spoofing is permitted.
 
-## Build output
+Read the detailed decision, boundaries, safeguards, integration references, and acceptance tests in [Rootless GSM Companion Architecture](docs/ARCHITECTURE_ROOTLESS_GSM.md).
 
-Open **Actions → VISION Android APK → latest run → Artifacts** and download:
+## Target system
 
-- Artifact: `VISION-Android-1.5.1-debug-APK`
-- APK: `VISION-Android-1.5.1-debug.apk`
-- SHA-256 checksum: `VISION-Android-1.5.1-debug.apk.sha256`
+- **Android:** one VISION app; SIM companion, LIVE voice, DRIVE, AGENT and secure device integrations.
+- **VDS:** LiveKit, TURN/TLS fallback, VISION gateway, EVREN adapter, call agent, memory/sync and push services.
+- **Windows:** companion client using the same account and encrypted sync.
+- **AI:** EVREN API remains the intelligence provider. API keys and LiveKit server secrets stay server-side or in Android Keystore as appropriate; never commit them to this public repository.
 
-The workflow runs source/security checks, Android unit tests, and Gradle debug build. This is a debug APK for sideloading and testing, not a Play Store-signed release.
+## Open-source integration direction
 
-## Build configuration
+- [LiveKit Agents](https://github.com/livekit/agents) — VDS real-time voice agents and SIP call handling.
+- [LiveKit Android SDK](https://github.com/livekit/client-sdk-android) — Android WebRTC client; it is not a GSM call-audio capture mechanism.
+- Android Telecom public APIs — native SIM call UI/control within the platform's documented limits.
+- [PocketDaemon](https://github.com/HyperCoherence/PocketDaemon) — architecture reference only; its root-dependent audio bridge is not used.
+- [AgentCall](https://github.com/sidinsearch/AgentCall) — research reference only; AGPL-3.0 and device-specific/root-dependent constraints mean no direct code incorporation without a separate license and hardware review.
 
-- Application ID: `com.vision.mind` (debug package: `com.vision.mind.debug`)
-- Version: `1.5.1` (versionCode 151)
-- Minimum Android: API 26 (Android 8.0)
-- Compile/target SDK: 35
-- JDK: 17
-- Gradle: 8.11.1
-- Android Gradle Plugin: 8.10.0
-- Kotlin: 2.2.10
+## Build status
 
-## EVREN API setup and security
+The current workflow at [VISION Android APK](.github/workflows/vision-android-apk.yml) is a placeholder build pipeline expecting a source archive at `source/VISION-Android-1.5.1-source.zip`. It cannot produce an APK until the real Android source tree is added and the build configuration is verified.
 
-The EVREN portal used to create API keys is `https://evren.ssyz.org.tr`. The OpenAI-compatible API base URL is:
+Release gate:
+- Android unit and integration tests pass.
+- GitHub Actions produces an APK successfully.
+- The APK installs and is tested on the actual CK7n.
+- LIVE is tested on both Wi-Fi and mobile data, including TURN/TLS fallback and interruption.
+- SIM companion behavior is tested without claiming cellular call-audio access.
+- AI receptionist is tested end-to-end with the carrier's call forwarding/SIP route.
+- Windows sync, permissions, security, privacy, and recovery behavior are tested.
 
-`https://evren-llmapi.ssyz.org.tr/v1`
-
-Install the APK, open VISION **Settings**, enter your own EVREN API key, read and accept the current EVREN terms, then test the connection. The key is stored encrypted with Android Keystore and is not embedded in the source archive or APK build configuration.
-
-**Never commit an EVREN API key, signing key, user database, or model weights to this public repository.** GitHub Actions does not need your personal EVREN key because the app asks for it after installation.
-
-## Verification limits
-
-Static source checks and targeted Kotlin provider smoke-compilation passed in the preparation environment. Full Android Gradle compilation, EVREN live API tests, microphone/camera behavior, Bluetooth routing, and physical-phone tests still need to run in GitHub Actions and on a real device. See `apps/android/TEST_MATRIX_TR.md`, `apps/android/LIVE_VOICE_TR.md`, `apps/android/OPEN_SOURCE_REVIEW_TR.md`, and `apps/android/THIRD_PARTY_NOTICES.md`.
+A debug APK is for testing only. A Play Store or production release requires a separately managed signing process.
