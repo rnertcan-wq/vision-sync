@@ -14,7 +14,7 @@ The archive must contain the `apps/android/` directory at its root. Uploading it
 ## What is in 1.5.0
 
 - Existing VISION Live Mode, Driving Mode, CameraX analysis, Turkish voice input, and EVREN speech/chat integration are retained.
-- The agent council uses the MIT-licensed Android Agent Runtime 0.3.0 with EVREN's OpenAI-compatible endpoint.
+- The agent council uses the MIT-licensed Android Agent Runtime 0.4.0 with EVREN's OpenAI-compatible endpoint.
 - JARVIS, FRIDAY, EDITH, and ULTRON run as bounded specialist subagents with separate local workspaces. Device actions and native web fetch are disabled in this agent integration.
 - The previous EVREN direct-call path remains as a compatibility fallback.
 - The API key is entered after installation and is never committed to this public repository.
