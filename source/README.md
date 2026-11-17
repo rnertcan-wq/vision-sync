@@ -1,11 +1,7 @@
-# VISION Android source upload
+# Android source staging area
 
-Upload the prepared source archive into this folder:
+This folder is currently empty apart from this note. No Android application source archive has been uploaded yet.
 
-`VISION-Android-1.5.1-source.zip`
+Do not upload API keys, LiveKit secrets, signing keys, local.properties, user databases, or personal recordings.
 
-The archive must contain `apps/android/` at its root. Commit it to the `main` branch. That exact path triggers the **VISION Android APK** workflow.
-
-This 1.5.1 archive adds continuous LIVE voice conversation: Turkish partial STT, EVREN streamed chat and PCM TTS, sentence-level playback, VAD interruption, and Android TTS fallback.
-
-Do not upload API keys, signing keys, local.properties, user databases, or personal recordings.
+When the real Android source tree is ready, update the GitHub Actions workflow to build that verified source. Do not upload an unverified archive merely to make the workflow turn green.
