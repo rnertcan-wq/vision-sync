@@ -5,18 +5,25 @@ This repository builds the VISION Android application from the source archive up
 ## Upload the source archive
 
 1. Download `VISION-Android-1.5.0-source.zip` from the ChatGPT conversation.
-2. Open this repository and choose **Add file → Upload files**.
-3. Upload the ZIP into the `source/` folder with this exact filename:
-   `VISION-Android-1.5.0-source.zip`
+2. Open the `source/` folder and choose **Add file → Upload files**.
+3. Upload the ZIP with this exact filename: `VISION-Android-1.5.0-source.zip`.
 4. Commit the upload to `main`.
 
 The archive must contain the `apps/android/` directory at its root. Uploading it to the expected path automatically starts **VISION Android APK** in GitHub Actions. You can also start the workflow manually from **Actions → VISION Android APK → Run workflow**.
+
+## What is in 1.5.0
+
+- Existing VISION Live Mode, Driving Mode, CameraX analysis, Turkish voice input, and EVREN speech/chat integration are retained.
+- The agent council uses the MIT-licensed Android Agent Runtime 0.3.0 with EVREN's OpenAI-compatible endpoint.
+- JARVIS, FRIDAY, EDITH, and ULTRON run as bounded specialist subagents with separate local workspaces. Device actions and native web fetch are disabled in this agent integration.
+- The previous EVREN direct-call path remains as a compatibility fallback.
+- The API key is entered after installation and is never committed to this public repository.
 
 ## Build output
 
 Open **Actions → VISION Android APK → latest run → Artifacts** and download:
 
-- `VISION-Android-1.5.0-debug-APK`
+- Artifact: `VISION-Android-1.5.0-debug-APK`
 - APK: `VISION-Android-1.5.0-debug.apk`
 - SHA-256 checksum: `VISION-Android-1.5.0-debug.apk.sha256`
 
@@ -41,6 +48,6 @@ Install the APK, open VISION **Settings**, enter your own EVREN API key, read an
 
 **Never commit an EVREN API key, signing key, user database, or model weights to this public repository.** GitHub Actions does not need your personal EVREN key because the app asks for it after installation.
 
-## What is and is not verified
+## Verification limits
 
-The CI run verifies source checks, unit tests, and Android compilation. It does not prove live EVREN requests, microphone/camera behavior, background execution, driving-mode behavior, or permissions on a physical phone. Those still require device testing. See `apps/android/TEST_MATRIX_TR.md`, `apps/android/OPEN_SOURCE_REVIEW_TR.md`, and `apps/android/THIRD_PARTY_NOTICES.md`.
+CI verifies source checks, unit tests, and Android compilation. It does not prove live EVREN requests, microphone/camera behavior, background execution, driving-mode behavior, or permissions on a physical phone. Those still require device testing. See `apps/android/TEST_MATRIX_TR.md`, `apps/android/OPEN_SOURCE_REVIEW_TR.md`, and `apps/android/THIRD_PARTY_NOTICES.md`.
